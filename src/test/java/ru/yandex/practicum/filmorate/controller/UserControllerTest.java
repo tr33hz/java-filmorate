@@ -20,45 +20,45 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void shouldReturn200IfUserIsOk() throws Exception {
-        mockMvc.perform(post("/users")
-                .content(
-            "{\"login\":\"dolore\",\"name\":\"NickName\",\"email\":\"mail@mail.ru\",\"birthday\":\"1946-08-20\"}"
-                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-    }
-
-    @Test
-    public void shouldReturn400IfLoginContainsSpaceCharacters() throws Exception {
-        mockMvc.perform(post("/users")
-                .content(
-            "{\"login\":\"doloreullamco\",\"email\":\"yandex@mail.ru\",\"birthday\":\"2446-08-20\"}"
-                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void shouldReturn400IfEmailIsIncorrect() throws Exception {
-        mockMvc.perform(post("/users")
-                .content(
-            "{\"login\":\"doloreullamco\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"1980-08-20\"}"
-                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void shouldReturn400IfBirthdayInFuture() throws Exception {
-        mockMvc.perform(post("/users")
-                .content(
-            "{\"login\":\"dolore\",\"name\":\"\",\"email\":\"test@mail.ru\",\"birthday\":\"2446-08-20\"}"
-                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void shouldReturn200IfBirthdayIsToday() throws Exception {
+    public void result200IfBirthdayIsToday() throws Exception {
         final LocalDate today = LocalDate.now();
         final String todayString = today.toString();
 
         mockMvc.perform(post("/users")
                 .content(String.format(
-            "{\"login\":\"dolore\",\"name\":\"\",\"email\":\"test@mail.ru\",\"birthday\":\"%s\"}", todayString
+                        "{\"login\":\"gang\",\"name\":\"\",\"email\":\"test@mail.ru\",\"birthday\":\"%s\"}", todayString
                 )).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    public void result200IfUserIsOk() throws Exception {
+        mockMvc.perform(post("/users")
+                .content(
+                        "{\"login\":\"nick\",\"name\":\"nick\",\"email\":\"mail@mail.ru\",\"birthday\":\"1999-03-23\"}"
+                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    public void result400IfBirthdayInFuture() throws Exception {
+        mockMvc.perform(post("/users")
+                .content(
+                        "{\"login\":\"toy\",\"name\":\"\",\"email\":\"test@mail.ru\",\"birthday\":\"2333-03-23\"}"
+                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void result400IfLoginContainsSpaceCharacters() throws Exception {
+        mockMvc.perform(post("/users")
+                .content(
+            "{\"login\":\"vcoy\",\"email\":\"kino@mail.ru\",\"birthday\":\"2333-03-23\"}"
+                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void result400IfEmailIsIncorrect() throws Exception {
+        mockMvc.perform(post("/users")
+                .content(
+            "{\"login\":\"lmao\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"2000-10-10\"}"
+                ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 }

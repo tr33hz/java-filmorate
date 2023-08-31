@@ -11,25 +11,23 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
 public class FilmController {
 
     private Map<Integer, Film> films = new HashMap<>();
-    private int idCounter = 0;
+    private int countId = 0;
 
-    @GetMapping
+    @GetMapping("/films")
     public List<Film> getFilms() {
         if (films.isEmpty()) {
             return Collections.emptyList();
 
         }
-
         return new ArrayList<>(films.values());
     }
 
-    @PostMapping
+    @PostMapping("/films")
     public Film createFilm(@Valid @RequestBody Film film) {
-        final int id = ++idCounter;
+        final int id = ++countId;
         film.setId(id);
 
         films.put(id, film);
@@ -37,7 +35,7 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping
+    @PutMapping("/films")
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         final int id = film.getId();
 

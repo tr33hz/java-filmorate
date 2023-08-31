@@ -11,11 +11,10 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
 public class UserController {
 
     private Map<Integer, User> users = new HashMap<>();
-    private int idCounter = 0;
+    private int countId = 0;
 
     @GetMapping("/users")
     public List<User> getUsers() {
@@ -34,12 +33,12 @@ public class UserController {
             user.setName(user.getLogin());
         }
 
-        final int id = ++idCounter;
+        final int id = ++countId;
         user.setId(id);
 
         users.put(id, user);
         log.debug("Пользователь user={} успешно создан", user);
-        return user;
+            return user;
     }
 
     @PutMapping ("/users")
