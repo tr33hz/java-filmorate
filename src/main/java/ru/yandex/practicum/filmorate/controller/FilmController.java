@@ -44,8 +44,8 @@ public class FilmController {
             return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
         }
 
+        films.remove(film);
         films.put(id, film);
-        log.info("Фильм film={} успешно обновлен", film);
         return ResponseEntity.ok(film);
     }
 }

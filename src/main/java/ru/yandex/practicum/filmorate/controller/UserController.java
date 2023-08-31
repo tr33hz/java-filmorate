@@ -50,6 +50,7 @@ public class UserController {
             return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
         }
 
+        users.remove(user);
         users.put(id, user);
         return ResponseEntity.ok(user);
     }
