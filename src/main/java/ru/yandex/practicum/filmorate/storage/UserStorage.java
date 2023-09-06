@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-public interface UserStorage {
+public interface UserStorage<User> {
     List<User> getUsers();
 
     User createUser(User user);

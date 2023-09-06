@@ -3,22 +3,20 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.Valid;
 import java.util.*;
 
 @Slf4j
-@Component
-public class InMemoryFilmStorage implements FilmStorage {
+@Repository
+public class InMemoryFilmStorage implements FilmStorage<Film> {
 
     private Map<Integer, Film> films = new HashMap<>();
     private int countId = 0;
 
     @Override
-    public List<Film> getFilms() {
+    public List<Film> getAll() {
         if (films.isEmpty()) {
             return Collections.emptyList();
 

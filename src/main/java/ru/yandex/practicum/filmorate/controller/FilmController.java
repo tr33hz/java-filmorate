@@ -1,40 +1,37 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class FilmController {
 
-    private InMemoryFilmStorage inMemoryFilmStorage;
-
-    public FilmController() {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-    }
+    private final FilmService filmService;
 
     @GetMapping("/films")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<Film> getFilms() {
-        return inMemoryFilmStorage.getFilms();
+        List<Film> list = filmService.getFilms();
+        return list;
     }
 
     @PostMapping("/films")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Film createFilm(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.createFilm(film);
+        Film savedFilm = filmService.create(film);
+        return savedFilm;
     }
 
     @PutMapping("/films")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Film updateFilm(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.updateFilm(film);
+        return filmService.updateFilm(film);
     }
 }

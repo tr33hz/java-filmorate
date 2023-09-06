@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 public class User {
 
     private int id;
@@ -26,5 +25,5 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    private Set<User> friends;
+    /*private Set<Long> friends;*/
 }

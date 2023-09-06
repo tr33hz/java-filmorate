@@ -1,40 +1,35 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
-    private InMemoryUserStorage inMemoryUserStorage;
-
-    public UserController() {
-        this.inMemoryUserStorage = inMemoryUserStorage;
-    }
+    private final UserService userService;
 
     @GetMapping("/users")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<User> getUsers() {
-        return inMemoryUserStorage.getUsers();
+        return userService.getUsers();
     }
 
     @PostMapping("/users")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public User createUser(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.createUser(user);
+        User userSaved = userService.create(user);
+        return userSaved;
     }
 
     @PutMapping ("/users")
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public User updateUser(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 }

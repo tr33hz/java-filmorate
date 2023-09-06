@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
 public class Film {
 
     @PositiveOrZero
@@ -30,5 +29,5 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
-    private Set<Integer> likes;
+    /*private Set<Long> likes;*/
 }
