@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -28,4 +29,6 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
+
+    private Set<Integer> likes;
 }
