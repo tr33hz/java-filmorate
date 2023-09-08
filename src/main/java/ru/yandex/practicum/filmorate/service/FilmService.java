@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,16 @@ public class FilmService {
     public Film getFilmById(Integer id) {
         return filmStorage.findById(id)
                 .orElseThrow(() -> new NonExistingFIlmException("This film does not exist"));
+    }
+
+    public List<Film> getAllFilms() {
+        return filmStorage.getAll();
+    }
+
+    public List<Film> getFilmsByLikes(int count) {
+        return filmStorage.getAll().stream()
+                .sorted(Comparator.comparingInt(Film::getQuantityLikes).reversed())
+                .limit(count).collect(Collectors.toList());
     }
 
     public Film create(Film film) {

@@ -52,7 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
     }
 
     protected class TaskIdFilmGenerator {
-        private int nextFreeId = 0;
+        private int nextFreeId = 1;
 
         public int getNextFreeId() {
             return nextFreeId++;

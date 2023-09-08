@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends")
-    public Set<Integer> getLisFriendsUsers(@PathVariable Integer id) {
-        Set<Integer> listFriends = userService.getAllFriendsUser(id);
+    public Set<User> getListFriendsUsers(@PathVariable Integer id) {
+        Set<User> listFriends = userService.getAllFriendsUser(id);
         return listFriends;
     }
 
@@ -33,6 +33,13 @@ public class UserController {
     public User getUserById(@PathVariable Integer id) {
         User user = userService.getUserById(id);
         return user;
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public Set<Integer> getCommonFriends(@PathVariable Integer id,
+                                         @PathVariable Integer otherId) {
+        Set<Integer> commonFriends = userService.getAllCommonFriends(id, otherId);
+        return commonFriends;
     }
 
     @PostMapping
@@ -49,7 +56,8 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+        User userUpdate = userService.updateUser(user);
+        return userUpdate;
     }
 
     @DeleteMapping("{id}/friends/{friendId}")

@@ -29,6 +29,15 @@ public class FilmController {
         return film;
     }
 
+    @GetMapping("/popular")
+    public List<Film> getTopFilmsByLikes(
+            @RequestParam(value = "count", defaultValue = "10", required = false) int count
+    ) {
+
+        List<Film> popularFilms = filmService.getFilmsByLikes(count);
+        return popularFilms;
+    }
+
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         Film savedFilm = filmService.create(film);

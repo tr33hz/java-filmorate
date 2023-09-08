@@ -12,6 +12,7 @@ public class InMemoryUserStorage implements UserStorage<User> {
 
     private Map<Integer, User> users = new HashMap<>();
     private TaskIdUserGenerator taskIdUserGenerator = new TaskIdUserGenerator();
+
     @Override
     public List<User> getUsers() {
         if (users.isEmpty()) {
@@ -29,36 +30,22 @@ public class InMemoryUserStorage implements UserStorage<User> {
 
     @Override
     public User createUser(User user) {
+        final Integer userId = user.getId();
 
-        if (user.getName() == null) {
-            log.debug("user={} имя изменено на логин", user);
-            user.setName(user.getLogin());
+        if (userId != 0 && userId <= taskIdUserGenerator.nextFreeId && users.containsKey(userId)) {
+            users.put(userId, user);
+            return user;
         }
 
         final int id = taskIdUserGenerator.getNextFreeId();
         user.setId(id);
-
         users.put(id, user);
-        log.debug("Пользователь user={} успешно создан", user);
-        return user;
-    }
 
-    @Override
-    public User updateUser(User user) {
-        final int id = user.getId();
-
-        if (!users.containsKey(id)) {
-            log.warn("Попытка обновить несуществующего пользователя user={}", user);
-            return user;
-        }
-
-        users.remove(user);
-        users.put(id, user);
         return user;
     }
 
     protected class TaskIdUserGenerator {
-        private int nextFreeId = 0;
+        private int nextFreeId = 1;
 
         public int getNextFreeId() {
             return nextFreeId++;
