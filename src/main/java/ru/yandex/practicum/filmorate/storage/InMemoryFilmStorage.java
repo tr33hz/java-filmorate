@@ -29,27 +29,19 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
 
     @Override
     public Film createFilm(Film film) {
-        final int id = taskIdFilmGenerator.getNextFreeId();
-        film.setId(id);
-
-        films.put(id, film);
-        log.debug("Добавлен фильм. {}: ", film.getName());
-        return film;
-    }
-
-    @Override
-    public Film updateFilm(Film film) {
-        final int id = film.getId();
-
-        if (!films.containsKey(id)) {
-            log.warn("Попытка обновить несуществующий фильм film={}", film);
+        final int filmId = film.getId();
+        if (filmId != 0 && filmId <= taskIdFilmGenerator.nextFreeId && films.containsKey(filmId)) {
+            films.put(filmId, film);
             return film;
         }
 
-        films.remove(film);
-        films.put(id, film);
+        final int newId = taskIdFilmGenerator.getNextFreeId();
+        film.setId(newId);
+        films.put(newId, film);
+
         return film;
     }
+
 
     protected class TaskIdFilmGenerator {
         private int nextFreeId = 1;

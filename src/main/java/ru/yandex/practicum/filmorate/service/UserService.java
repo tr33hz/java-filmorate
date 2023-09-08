@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,33 +27,32 @@ public class UserService {
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
     }
 
-    public Set<User> getAllFriendsUser(Integer id) {
+    public List<User> getAllFriendsUser(Integer id) {
         User mainUser = userStorage.findById(id)
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
-        Set<User> listFriends = mainUser.getFriends()
+        return mainUser.getFriends()
                 .stream()
                 .map(userStorage::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toUnmodifiableSet());
-        return listFriends;
+                .collect(Collectors.toList());
     }
 
 
-    public Set<Integer> getAllCommonFriends(Integer id, Integer otherId) {
+    public List<User> getAllCommonFriends(Integer id, Integer otherId) {
         User firstUser = userStorage.findById(id)
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
         User secondUser = userStorage.findById(otherId)
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
-        Set<Integer> commonFriends = firstUser.getFriends()
-                .stream()
-                .filter(secondUser.getFriends()::contains)
-                .collect(Collectors.toUnmodifiableSet());
+        List<User> friends1 = getAllFriendsUser(firstUser.getId());
+        List<User> friends2 = getAllFriendsUser(secondUser.getId());
 
-        return commonFriends;
+        friends1.removeIf(friend -> !friends2.contains(friend));
+
+        return friends1;
     }
 
 

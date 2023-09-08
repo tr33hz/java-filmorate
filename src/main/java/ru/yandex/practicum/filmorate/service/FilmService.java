@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NonExistingFIlmException;
+import ru.yandex.practicum.filmorate.exceptions.NonExistingFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -24,7 +24,7 @@ public class FilmService {
 
     public Film getFilmById(Integer id) {
         return filmStorage.findById(id)
-                .orElseThrow(() -> new NonExistingFIlmException("This film does not exist"));
+                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
     }
 
     public List<Film> getAllFilms() {
@@ -43,7 +43,7 @@ public class FilmService {
 
     public Film addLike(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId)
-                .orElseThrow(() -> new NonExistingFIlmException("This user does not exist"));
+                .orElseThrow(() -> new NonExistingFilmException("This user does not exist"));
 
         User user = userService.getUserById(userId);
 
@@ -54,12 +54,15 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+        final int filmId = film.getId();
+        filmStorage.findById(filmId)
+                .orElseThrow(() -> new NonExistingFilmException("Попытка обновить несуществующий фильм"));
+        return filmStorage.createFilm(film);
     }
 
     public Film removeLike(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId)
-                .orElseThrow(() -> new NonExistingFIlmException("This film does not exist"));
+                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
 
         User user = userService.getUserById(userId);
 

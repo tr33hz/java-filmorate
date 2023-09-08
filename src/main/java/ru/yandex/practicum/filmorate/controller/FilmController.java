@@ -44,7 +44,7 @@ public class FilmController {
         return savedFilm;
     }
 
-    @PutMapping("{filmId}/likes/{userId}")
+    @PutMapping("{filmId}/like/{userId}")
     public Film addFriend(@PathVariable Integer filmId,
                           @PathVariable Integer userId) {
         return filmService.addLike(filmId, userId);
@@ -55,7 +55,7 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
-    @DeleteMapping("{filmId}/likes/{userId}")
+    @DeleteMapping("{filmId}/like/{userId}")
     public Film removeFriend(@PathVariable Integer filmId,
                              @PathVariable Integer userId) {
         return filmService.removeLike(filmId, userId);

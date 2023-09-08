@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class NonExistingFIlmException extends RuntimeException{
-    public NonExistingFIlmException(String message) {
+public class NonExistingFilmException extends RuntimeException {
+    public NonExistingFilmException(String message) {
         super(message);
     }
 }
