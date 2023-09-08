@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -13,7 +11,7 @@ import java.util.*;
 public class InMemoryFilmStorage implements FilmStorage<Film> {
 
     private Map<Integer, Film> films = new HashMap<>();
-    private int countId = 0;
+    private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
 
     @Override
     public List<Film> getAll() {
@@ -25,8 +23,13 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
     }
 
     @Override
+    public Optional<Film> findById(Integer id) {
+        return Optional.ofNullable(films.get(id));
+    }
+
+    @Override
     public Film createFilm(Film film) {
-        final int id = ++countId;
+        final int id = taskIdFilmGenerator.getNextFreeId();
         film.setId(id);
 
         films.put(id, film);
@@ -46,5 +49,13 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
         films.remove(film);
         films.put(id, film);
         return film;
+    }
+
+    protected class TaskIdFilmGenerator {
+        private int nextFreeId = 0;
+
+        public int getNextFreeId() {
+            return nextFreeId++;
+        }
     }
 }

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.filmorate.annotaions.InvalidFilmCreationAnnotaion;
 
@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -29,5 +30,23 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
-    /*private Set<Long> likes;*/
+    @EqualsAndHashCode.Exclude
+    private Set<Integer> likes = new HashSet<>();
+
+
+    public void addLike(User user) {
+        final Integer id = user.getId();
+
+        likes.add(id);
+    }
+
+    public void removeLike(User user) {
+        final Integer id = user.getId();
+
+        likes.remove(id);
+    }
+
+    public Integer getQuantityLikes() {
+        return likes.size();
+    }
 }
