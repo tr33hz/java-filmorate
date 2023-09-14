@@ -10,8 +10,8 @@ import java.util.*;
 @Repository
 public class InMemoryUserStorage implements UserStorage<User> {
 
-    private Map<Integer, User> users = new HashMap<>();
-    private TaskIdUserGenerator taskIdUserGenerator = new TaskIdUserGenerator();
+private Map<Integer, User> users = new HashMap<>();
+private TaskIdUserGenerator taskIdUserGenerator = new TaskIdUserGenerator();
 
     @Override
     public List<User> getUsers() {

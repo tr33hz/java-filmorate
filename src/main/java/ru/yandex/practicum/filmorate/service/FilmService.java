@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final FilmStorage<Film> filmStorage;
-    private final UserService userService;
+private final FilmStorage<Film> filmStorage;
+private final UserService userService;
 
     public List<Film> getFilms() {
         return filmStorage.getAll();

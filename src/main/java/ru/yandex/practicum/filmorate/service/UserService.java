@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
 
-    private final UserStorage<User> userStorage;
+private final UserStorage<User> userStorage;
 
     public List<User> getUsers() {
         return userStorage.getUsers();
