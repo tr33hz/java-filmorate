@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserStorage<T> {
-List<User> getUsers();
+    List<User> getUsers();
 
-User createUser(User user);
+    User createUser(User user);
 
-Optional<User> findById(Integer id);
+    Optional<User> findById(Integer id);
 }

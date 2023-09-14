@@ -14,22 +14,22 @@ import java.util.Set;
 @Data
 public class User {
 
-private int id;
+    private int id;
 
-@Email(message = "Электронная почта указана неверно")
-private String email;
+    @Email(message = "Электронная почта указана неверно")
+    private String email;
 
-@Pattern(regexp = "^\\S+$", message = "Логин не должен содержать пробелов")
-private String login;
+    @Pattern(regexp = "^\\S+$", message = "Логин не должен содержать пробелов")
+    private String login;
 
-private String name;
+    private String name;
 
-@PastOrPresent(message = "Дата рождения не может быть в будущем")
-private LocalDate birthday;
+    @PastOrPresent(message = "Дата рождения не может быть в будущем")
+    private LocalDate birthday;
 
-@JsonIgnore
-@EqualsAndHashCode.Exclude
-private Set<Integer> friends = new HashSet<>();
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private Set<Integer> friends = new HashSet<>();
 
     public void addFriend(User user) {
         final Integer id = user.getId();

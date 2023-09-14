@@ -10,8 +10,8 @@ import java.util.*;
 @Repository
 public class InMemoryFilmStorage implements FilmStorage<Film> {
 
-private Map<Integer, Film> films = new HashMap<>();
-private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
+    private Map<Integer, Film> films = new HashMap<>();
+    private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
 
     @Override
     public List<Film> getAll() {

@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface FilmStorage<T> {
 
-List<Film> getAll();
+    List<Film> getAll();
 
-Film createFilm(Film film);
+    Film createFilm(Film film);
 
-Optional<Film> findById(Integer id);
+    Optional<Film> findById(Integer id);
 
 }

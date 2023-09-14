@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
 
-private final FilmStorage<Film> filmStorage;
-private final UserService userService;
+    private final FilmStorage<Film> filmStorage;
+    private final UserService userService;
 
     public List<Film> getFilms() {
         return filmStorage.getAll();
@@ -47,7 +47,6 @@ private final UserService userService;
 
         User user = userService.getUserById(userId);
 
-
         film.addLike(user);
 
         return film;
@@ -65,7 +64,6 @@ private final UserService userService;
                 .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
 
         User user = userService.getUserById(userId);
-
 
         film.removeLike(user);
 
