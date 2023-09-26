@@ -1,14 +1,15 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.dto.Film;
 
 import java.util.*;
 
 @Slf4j
 @Repository
-public class InMemoryFilmStorage implements FilmStorage<Film> {
+public class InMemoryFilmStorage implements FilmRepository {
 
     private Map<Integer, Film> films = new HashMap<>();
     private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
@@ -28,7 +29,7 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public Film saveFilm(Film film) {
         final int filmId = film.getId();
         if (filmId != 0 && filmId <= taskIdFilmGenerator.nextFreeId && films.containsKey(filmId)) {
             films.put(filmId, film);

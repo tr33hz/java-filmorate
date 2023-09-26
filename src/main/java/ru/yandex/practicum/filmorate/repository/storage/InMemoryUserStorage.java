@@ -1,14 +1,15 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.dto.User;
 
 import java.util.*;
 
 @Slf4j
 @Repository
-public class InMemoryUserStorage implements UserStorage<User> {
+public class InMemoryUserStorage implements UserRepository {
 
     private Map<Integer, User> users = new HashMap<>();
     private TaskIdUserGenerator taskIdUserGenerator = new TaskIdUserGenerator();
@@ -29,7 +30,7 @@ public class InMemoryUserStorage implements UserStorage<User> {
 
 
     @Override
-    public User createUser(User user) {
+    public User saveUser(User user) {
         final Integer userId = user.getId();
 
         if (userId != 0 && userId <= taskIdUserGenerator.nextFreeId && users.containsKey(userId)) {
