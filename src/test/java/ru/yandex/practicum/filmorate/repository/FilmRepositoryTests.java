@@ -52,7 +52,7 @@ public class FilmRepositoryTests {
     }
 
     @Test
-    public void CreateAndReturnFilmById() {
+    public void createAndReturnFilmById() {
         assertNotNull(savedFilm);
 
         Integer id = expectedId.incrementAndGet();
@@ -61,7 +61,7 @@ public class FilmRepositoryTests {
     }
 
     @Test
-    public void CreateAndGetById() {
+    public void createAndGetById() {
         Integer id = expectedId.incrementAndGet();
         Optional<Film> optionalFilm = filmRepository.findById(id);
         assertTrue(optionalFilm.isPresent());
@@ -71,7 +71,7 @@ public class FilmRepositoryTests {
     }
 
     @Test
-    public void DeleteFilmAfterSave() {
+    public void deleteFilmAfterSave() {
         filmRepository.delete(savedFilm);
 
         Integer id = expectedId.incrementAndGet();

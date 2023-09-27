@@ -50,7 +50,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void CreatedAndReturnUserById() {
+    public void createdAndReturnUserById() {
         assertNotNull(savedUser);
 
         Integer id = expectedId.incrementAndGet();
@@ -59,7 +59,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void FindByIdAfterSave() {
+    public void findByIdAfterSave() {
         Integer id = expectedId.incrementAndGet();
         Optional<User> optionalUser = userRepository.findById(id);
         assertTrue(optionalUser.isPresent());
@@ -69,7 +69,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void DeleteUserAfterSave() {
+    public void deleteUserAfterSave() {
         userRepository.delete(savedUser);
 
         Integer id = expectedId.incrementAndGet();
