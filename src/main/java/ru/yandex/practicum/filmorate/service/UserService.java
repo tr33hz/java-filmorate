@@ -1,22 +1,35 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NonExistingUserException;
 import ru.yandex.practicum.filmorate.dto.User;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.exceptions.NonExistingUserException;
+import ru.yandex.practicum.filmorate.repository.interfaces.FriendRepository;
+import ru.yandex.practicum.filmorate.repository.interfaces.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@Component
 @Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
+
+    @Autowired
+    public UserService(
+            @Qualifier("UserDao") UserRepository userRepository,
+            FriendRepository friendRepository
+    ) {
+        this.userRepository = userRepository;
+        this.friendRepository = friendRepository;
+    }
 
     public List<User> getUsers() {
         return userRepository.getUsers();
@@ -74,6 +87,8 @@ public class UserService {
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
         firstUser.addFriend(secondUser);
+        friendRepository.deleteFriends(firstUser);
+        friendRepository.saveFriends(firstUser);
 
         return firstUser;
     }
@@ -81,7 +96,7 @@ public class UserService {
     public User updateUser(User user) {
         final Integer userId = user.getId();
 
-        User firstUser = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
         return create(user);
@@ -95,6 +110,7 @@ public class UserService {
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
 
         firstUser.removeFriend(secondUser);
+        friendRepository.deleteFriend(firstUser, secondUser);
 
         return firstUser;
     }

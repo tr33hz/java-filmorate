@@ -1,22 +1,34 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NonExistingFilmException;
 import ru.yandex.practicum.filmorate.dto.Film;
 import ru.yandex.practicum.filmorate.dto.User;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.exceptions.NonExistingFilmException;
+import ru.yandex.practicum.filmorate.repository.interfaces.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.interfaces.LikeRepository;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmRepository filmRepository;
+    private final LikeRepository likeRepository;
     private final UserService userService;
+
+    @Autowired
+    public FilmService(
+            @Qualifier("FilmDao") FilmRepository filmRepository,
+            LikeRepository likeRepository,
+            UserService userService) {
+        this.filmRepository = filmRepository;
+        this.userService = userService;
+        this.likeRepository = likeRepository;
+    }
 
     public List<Film> getFilms() {
         return filmRepository.getAll();
@@ -43,11 +55,13 @@ public class FilmService {
 
     public Film addLike(Integer filmId, Integer userId) {
         Film film = filmRepository.findById(filmId)
-                .orElseThrow(() -> new NonExistingFilmException("This user does not exist"));
+                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
 
         User user = userService.getUserById(userId);
 
         film.addLike(user);
+        likeRepository.deleteLikes(film);
+        likeRepository.saveLikes(film);
 
         return film;
     }
@@ -55,7 +69,7 @@ public class FilmService {
     public Film updateFilm(Film film) {
         final int filmId = film.getId();
         filmRepository.findById(filmId)
-                .orElseThrow(() -> new NonExistingFilmException("Попытка обновить несуществующий фильм"));
+                .orElseThrow(() -> new NonExistingFilmException("Error received film by id"));
         return filmRepository.saveFilm(film);
     }
 
@@ -66,6 +80,7 @@ public class FilmService {
         User user = userService.getUserById(userId);
 
         film.removeLike(user);
+        likeRepository.deleteLike(film, user);
 
         return film;
     }

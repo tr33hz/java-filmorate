@@ -1,18 +1,27 @@
-package ru.yandex.practicum.filmorate.repository.storage;
+package ru.yandex.practicum.filmorate.repository.memory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.dto.Film;
+import ru.yandex.practicum.filmorate.repository.interfaces.FilmRepository;
 
 import java.util.*;
 
 @Slf4j
 @Repository
+@Qualifier("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmRepository {
 
-    private Map<Integer, Film> films = new HashMap<>();
-    private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
+    private final Map<Integer, Film> films;
+    private final TaskIdFilmGenerator taskIdFilmGenerator;
+
+    @Autowired
+    public InMemoryFilmStorage() {
+        this.films = new HashMap<>();
+        this.taskIdFilmGenerator = new TaskIdFilmGenerator();
+    }
 
     @Override
     public List<Film> getAll() {
@@ -26,6 +35,10 @@ public class InMemoryFilmStorage implements FilmRepository {
     @Override
     public Optional<Film> findById(Integer id) {
         return Optional.ofNullable(films.get(id));
+    }
+
+    @Override
+    public void delete(Film film) {
     }
 
     @Override
