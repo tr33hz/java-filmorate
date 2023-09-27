@@ -22,7 +22,7 @@ public class FilmControllerTest {
     public void result400IfNameIsBlank() throws Exception {
         mockMvc.perform(post("/films")
                 .content(
-            "{\"name\":\"\",\"description\":\"des\",\"releaseDate\":\"2000-06-03\",\"duration\":200}"
+                        "{\"name\":\"\",\"description\":\"des\",\"releaseDate\":\"2000-06-03\",\"duration\":200}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
@@ -30,7 +30,7 @@ public class FilmControllerTest {
     public void result400IfDurationIsNegative() throws Exception {
         mockMvc.perform(post("/films")
                 .content(
-            "{\"name\":\"Топский Павел\",\"description\":\"Всегда на шаг впереди\",\"releaseDate\":\"2014-10-10\",\"duration\":-1}"
+                        "{\"name\":\"Топский Павел\",\"description\":\"Всегда на шаг впереди\",\"releaseDate\":\"2014-10-10\",\"duration\":-1}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
@@ -38,7 +38,7 @@ public class FilmControllerTest {
     public void result400IfDurationIsZero() throws Exception {
         mockMvc.perform(post("/films")
                 .content(
-            "{\"name\":\"Зубенко\",\"description\":\"ор взакони\",\"releaseDate\":\"1999-11-11\",\"duration\":0}"
+                        "{\"name\":\"Зубенко\",\"description\":\"ор взакони\",\"releaseDate\":\"1999-11-11\",\"duration\":0}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 }

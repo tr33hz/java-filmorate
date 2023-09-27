@@ -50,7 +50,7 @@ public class UserControllerTest {
     public void result400IfLoginContainsSpaceCharacters() throws Exception {
         mockMvc.perform(post("/users")
                 .content(
-            "{\"login\":\"vcoy\",\"email\":\"kino@mail.ru\",\"birthday\":\"2333-03-23\"}"
+                        "{\"login\":\"vcoy\",\"email\":\"kino@mail.ru\",\"birthday\":\"2333-03-23\"}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
@@ -58,7 +58,7 @@ public class UserControllerTest {
     public void result400IfEmailIsIncorrect() throws Exception {
         mockMvc.perform(post("/users")
                 .content(
-            "{\"login\":\"lmao\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"2000-10-10\"}"
+                        "{\"login\":\"lmao\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"2000-10-10\"}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 }
