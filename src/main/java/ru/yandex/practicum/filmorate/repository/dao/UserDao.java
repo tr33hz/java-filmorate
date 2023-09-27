@@ -99,6 +99,16 @@ public class UserDao implements UserRepository {
     }
 
     @Override
+    public void delete(User user) {
+        Integer userId = user.getId();
+        String sqlQuery = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, userId);
+        likeRepository.deleteLikes(user);
+        friendRepository.deleteFriends(user);
+        friendRepository.deleteFriendFromUsers(user);
+    }
+
+    @Override
     public List<User> getUsers() {
         String sqlQuery = "SELECT * FROM users;";
 

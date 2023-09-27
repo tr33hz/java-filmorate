@@ -37,6 +37,11 @@ public class InMemoryUserStorage implements UserRepository {
         return Optional.ofNullable(users.get(id));
     }
 
+    @Override
+    public void delete(User user) {
+
+    }
+
 
     @Override
     public User saveUser(User user) {

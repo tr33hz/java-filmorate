@@ -12,4 +12,6 @@ public interface UserRepository {
     List<User> getUsers();
 
     Optional<User> findById(Integer id);
+
+    public void delete(User user);
 }
