@@ -26,7 +26,7 @@ public class FilmRepositoryTests {
 
     @Autowired
     public FilmRepositoryTests(
-            @Qualifier("FilmDao") FilmRepository filmRepository
+            @Qualifier("filmDao") FilmRepository filmRepository
     ) {
         this.filmRepository = filmRepository;
     }

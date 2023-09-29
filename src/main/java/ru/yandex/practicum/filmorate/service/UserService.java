@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,26 +18,19 @@ import java.util.stream.Collectors;
 @Service
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
+    @Qualifier("userDao")
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
-
-    @Autowired
-    public UserService(
-            @Qualifier("UserDao") UserRepository userRepository,
-            FriendRepository friendRepository
-    ) {
-        this.userRepository = userRepository;
-        this.friendRepository = friendRepository;
-    }
 
     public List<User> getUsers() {
         return userRepository.getUsers();
     }
 
     public User getUserById(Integer id) {
-        return userRepository.findById(id) // должен возвращать 404
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
     }
 

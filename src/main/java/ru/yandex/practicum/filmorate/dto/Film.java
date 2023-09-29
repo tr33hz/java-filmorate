@@ -64,7 +64,6 @@ public class Film {
     public static class Genre {
 
         private int id;
-        @EqualsAndHashCode.Exclude
         private String name;
 
         public Genre(int id, String name) {
@@ -84,7 +83,6 @@ public class Film {
     public static class RatingMPA {
 
         private int id;
-        @EqualsAndHashCode.Exclude
         private String name;
 
         public RatingMPA(int id, String name) {

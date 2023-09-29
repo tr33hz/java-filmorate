@@ -26,7 +26,7 @@ public class UserRepositoryTests {
 
     @Autowired
     public UserRepositoryTests(
-            @Qualifier("UserDao") UserRepository userRepository
+            @Qualifier("userDao") UserRepository userRepository
     ) {
         this.userRepository = userRepository;
     }

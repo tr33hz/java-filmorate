@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -14,21 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilmService {
 
+    @Qualifier("filmDao")
     private final FilmRepository filmRepository;
     private final LikeRepository likeRepository;
     private final UserService userService;
 
-    @Autowired
-    public FilmService(
-            @Qualifier("FilmDao") FilmRepository filmRepository,
-            LikeRepository likeRepository,
-            UserService userService) {
-        this.filmRepository = filmRepository;
-        this.userService = userService;
-        this.likeRepository = likeRepository;
-    }
 
     public List<Film> getFilms() {
         return filmRepository.getAll();

@@ -1,44 +1,32 @@
 package ru.yandex.practicum.filmorate.repository.dao;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.Film;
 import ru.yandex.practicum.filmorate.exceptions.NotSavedArgumentException;
 import ru.yandex.practicum.filmorate.repository.interfaces.*;
+import ru.yandex.practicum.filmorate.repository.mappers.FilmMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
-@Qualifier("FilmDao")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Qualifier
 public class FilmDao implements FilmRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    @Qualifier("userDao")
     private final UserRepository userRepository;
     private final GenreRepository genreRepository;
     private final RatingRepository ratingRepository;
     private final LikeRepository likeRepository;
-
-    @Autowired
-    public FilmDao(
-            JdbcTemplate jdbcTemplate,
-            @Qualifier("UserDao") UserRepository userRepository,
-            GenreRepository genreRepository,
-            RatingRepository ratingRepository,
-            LikeRepository likeRepository
-    ) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userRepository = userRepository;
-        this.genreRepository = genreRepository;
-        this.ratingRepository = ratingRepository;
-        this.likeRepository = likeRepository;
-    }
 
     @Override
     public Film saveFilm(Film film) {
@@ -93,7 +81,8 @@ public class FilmDao implements FilmRepository {
     public Optional<Film> findById(Integer id) {
         String sqlQuery = "SELECT * FROM film WHERE id = ?;";
 
-        FilmMapper mapper = new FilmMapper();
+        FilmMapper mapper = new FilmMapper(userRepository, genreRepository,
+                ratingRepository, likeRepository);
         Film film;
         try {
             film = jdbcTemplate.queryForObject(
@@ -115,10 +104,11 @@ public class FilmDao implements FilmRepository {
     public List<Film> getAll() {
         String sqlQuery = "SELECT * FROM film;";
 
-        FilmMapper mapper = new FilmMapper();
+        FilmMapper filmMapper = new FilmMapper(userRepository, genreRepository,
+                ratingRepository, likeRepository);
         List<Film> films = jdbcTemplate.query(
                 sqlQuery,
-                mapper
+                filmMapper
         );
         return films;
     }
@@ -130,35 +120,5 @@ public class FilmDao implements FilmRepository {
         jdbcTemplate.update(sqlQuery, filmId);
         genreRepository.deleteGenres(film);
         likeRepository.deleteLikes(film);
-    }
-
-    private class FilmMapper implements RowMapper<Film> {
-
-        @Override
-        public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-            int ratingId = rs.getInt("rating_mpa_id");
-            Film.RatingMPA rating = ratingRepository.findById(ratingId)
-                    .orElseThrow(() -> new NotSavedArgumentException("Error by received rating film"));
-
-            int filmId = rs.getInt("id");
-            Set<Film.Genre> genres = new HashSet<>(genreRepository.findGenresByFilmId(filmId));
-            List<Integer> likes = likeRepository.findLikesByFilmId(filmId);
-
-            Film film = Film.builder()
-                    .mpa(rating)
-                    .name(rs.getString("name"))
-                    .description(rs.getString("description"))
-                    .duration(rs.getInt("duration"))
-                    .id(filmId)
-                    .releaseDate(rs.getDate("release_date").toLocalDate())
-                    .genres(genres)
-                    .build();
-            likes.stream().map(userRepository::findById)
-                    .map(opt -> opt.orElseThrow(
-                            () -> new NotSavedArgumentException("Error like user")
-                    )).forEach(film::addLike);
-
-            return film;
-        }
     }
 }
