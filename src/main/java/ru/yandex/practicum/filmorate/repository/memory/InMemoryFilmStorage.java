@@ -1,17 +1,27 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.memory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.Film;
+import ru.yandex.practicum.filmorate.repository.interfaces.FilmRepository;
 
 import java.util.*;
 
 @Slf4j
 @Repository
-public class InMemoryFilmStorage implements FilmStorage<Film> {
+@Qualifier("InMemoryFilmStorage")
+public class InMemoryFilmStorage implements FilmRepository {
 
-    private Map<Integer, Film> films = new HashMap<>();
-    private TaskIdFilmGenerator taskIdFilmGenerator = new TaskIdFilmGenerator();
+    private final Map<Integer, Film> films;
+    private final TaskIdFilmGenerator taskIdFilmGenerator;
+
+    @Autowired
+    public InMemoryFilmStorage() {
+        this.films = new HashMap<>();
+        this.taskIdFilmGenerator = new TaskIdFilmGenerator();
+    }
 
     @Override
     public List<Film> getAll() {
@@ -28,7 +38,11 @@ public class InMemoryFilmStorage implements FilmStorage<Film> {
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public void delete(Film film) {
+    }
+
+    @Override
+    public Film saveFilm(Film film) {
         final int filmId = film.getId();
         if (filmId != 0 && filmId <= taskIdFilmGenerator.nextFreeId && films.containsKey(filmId)) {
             films.put(filmId, film);

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase
 public class UserControllerTest {
 
     @Autowired
@@ -50,7 +52,7 @@ public class UserControllerTest {
     public void result400IfLoginContainsSpaceCharacters() throws Exception {
         mockMvc.perform(post("/users")
                 .content(
-            "{\"login\":\"vcoy\",\"email\":\"kino@mail.ru\",\"birthday\":\"2333-03-23\"}"
+                        "{\"login\":\"vcoy\",\"email\":\"kino@mail.ru\",\"birthday\":\"2333-03-23\"}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
@@ -58,7 +60,7 @@ public class UserControllerTest {
     public void result400IfEmailIsIncorrect() throws Exception {
         mockMvc.perform(post("/users")
                 .content(
-            "{\"login\":\"lmao\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"2000-10-10\"}"
+                        "{\"login\":\"lmao\",\"name\":\"\",\"email\":\"mail.ru\",\"birthday\":\"2000-10-10\"}"
                 ).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 }

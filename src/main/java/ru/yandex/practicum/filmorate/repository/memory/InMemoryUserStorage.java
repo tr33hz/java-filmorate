@@ -1,17 +1,27 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.memory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.User;
+import ru.yandex.practicum.filmorate.repository.interfaces.UserRepository;
 
 import java.util.*;
 
 @Slf4j
 @Repository
-public class InMemoryUserStorage implements UserStorage<User> {
+@Qualifier("InMemoryUserStorage")
+public class InMemoryUserStorage implements UserRepository {
 
-    private Map<Integer, User> users = new HashMap<>();
-    private TaskIdUserGenerator taskIdUserGenerator = new TaskIdUserGenerator();
+    private final Map<Integer, User> users;
+    private TaskIdUserGenerator taskIdUserGenerator;
+
+    @Autowired
+    public InMemoryUserStorage() {
+        this.users = new HashMap<>();
+        this.taskIdUserGenerator = new TaskIdUserGenerator();
+    }
 
     @Override
     public List<User> getUsers() {
@@ -27,9 +37,14 @@ public class InMemoryUserStorage implements UserStorage<User> {
         return Optional.ofNullable(users.get(id));
     }
 
+    @Override
+    public void delete(User user) {
+
+    }
+
 
     @Override
-    public User createUser(User user) {
+    public User saveUser(User user) {
         final Integer userId = user.getId();
 
         if (userId != 0 && userId <= taskIdUserGenerator.nextFreeId && users.containsKey(userId)) {

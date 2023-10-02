@@ -1,12 +1,15 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
-import ru.yandex.practicum.filmorate.annotaions.InvalidFilmCreationAnnotaion;
+import ru.yandex.practicum.filmorate.exceptions.NotSavedArgumentException;
+import ru.yandex.practicum.filmorate.util.annotaions.InvalidFilmCreationAnnotaion;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
@@ -14,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
 public class Film {
 
     @PositiveOrZero
@@ -32,7 +36,12 @@ public class Film {
     private int duration;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<Integer> likes = new HashSet<>();
+    private final Set<Integer> likes = new HashSet<>();
+
+    private Set<Genre> genres;
+
+    @NotNull
+    private RatingMPA mpa;
 
 
     public void addLike(User user) {
@@ -50,4 +59,43 @@ public class Film {
     public Integer getQuantityLikes() {
         return likes.size();
     }
+
+    @Data
+    public static class Genre {
+
+        private int id;
+        private String name;
+
+        public Genre(int id, String name) {
+            setId(id);
+            this.name = name;
+        }
+
+        public void setId(int id) {
+            if (id < 1 || id > 6) {
+                throw new NotSavedArgumentException("Uncorrected received id");
+            }
+            this.id = id;
+        }
+    }
+
+    @Data
+    public static class RatingMPA {
+
+        private int id;
+        private String name;
+
+        public RatingMPA(int id, String name) {
+            setId(id);
+            this.name = name;
+        }
+
+        public void setId(int id) {
+            if (id < 1 || id > 5) {
+                throw new NotSavedArgumentException("Uncorrected received id");
+            }
+            this.id = id;
+        }
+    }
 }
+
