@@ -2,110 +2,152 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.User;
-import ru.yandex.practicum.filmorate.exceptions.NonExistingUserException;
-import ru.yandex.practicum.filmorate.repository.interfaces.FriendRepository;
-import ru.yandex.practicum.filmorate.repository.interfaces.UserRepository;
+import ru.yandex.practicum.filmorate.constants.EventType;
+import ru.yandex.practicum.filmorate.constants.Operation;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Component
+@RequiredArgsConstructor
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
-    @Qualifier("userDao")
-    private final UserRepository userRepository;
-    private final FriendRepository friendRepository;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final GenreService genreService;
+    private final DirectorService directorService;
 
-    public List<User> getUsers() {
-        return userRepository.getUsers();
+    public List<Integer> findAllUserIds() {
+        return userStorage.findAllUserIds();
     }
 
-    public User getUserById(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
+    public Collection<User> findAllUsers() {
+        return userStorage.findAllUsers();
     }
 
-    public List<User> getAllFriendsUser(Integer id) {
-        User mainUser = userRepository.findById(id)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        return mainUser.getFriends()
-                .stream()
-                .map(userRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    public Collection<Event> findAllEventsByUserId(int id) {
+        checkUser(id);
+        return userStorage.findAllEventsByUserId(id);
     }
 
-
-    public List<User> getAllCommonFriends(Integer id, Integer otherId) {
-        User firstUser = userRepository.findById(id)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        User secondUser = userRepository.findById(otherId)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        List<User> friends1 = getAllFriendsUser(firstUser.getId());
-        List<User> friends2 = getAllFriendsUser(secondUser.getId());
-
-        friends1.removeIf(friend -> !friends2.contains(friend));
-
-        return friends1;
+    public void addEvent(int userId, EventType eventType, Operation operation, int entityId) {
+        userStorage.addEvent(userId, eventType, operation, entityId);
     }
 
+    public List<Film> findFilmsRecommendationsForUser(int userId) {
+        findUser(userId);
 
-    public User create(User user) {
-        final String userName = user.getName();
-        if (user.getName() == null || userName.isBlank()) {
-            log.debug("user={} name changed to login", user);
-            user.setName(user.getLogin());
+        List<Integer> likeFilmIdsByUser = filmStorage.findLikeFilmIdsByUserId(userId);
+        if (likeFilmIdsByUser == null) return new ArrayList<>();
+
+        List<Integer> allUserIds = findAllUserIds();
+
+        int secondUserId = 0;
+        int matches = 0;
+
+        for (int id : allUserIds) {
+            if (id == userId) continue;
+
+            List<Integer> filmIds = filmStorage.findLikeFilmIdsByUserId(id);
+            List<Integer> commonElements = new ArrayList<>(likeFilmIdsByUser);
+            commonElements.retainAll(filmIds);
+
+            int numOfCommonElements = commonElements.size();
+
+            if (numOfCommonElements > matches) {
+                matches = numOfCommonElements;
+                secondUserId = id;
+            }
         }
 
-        return userRepository.saveUser(user);
+        if (matches == 0) return new ArrayList<>();
+
+        List<Integer> likeFilmIdsBySecondUser = filmStorage.findLikeFilmIdsByUserId(secondUserId);
+        likeFilmIdsBySecondUser.removeAll(likeFilmIdsByUser);
+
+        List<Film> recommendFilms = filmStorage.findFilmsByIds(likeFilmIdsBySecondUser);
+        genreService.setGenres(recommendFilms);
+        directorService.setDirectors(recommendFilms);
+        return recommendFilms;
     }
 
-    public User addFriend(Integer id, Integer friendId) {
-        User firstUser = userRepository.findById(id)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        User secondUser = userRepository.findById(friendId)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        firstUser.addFriend(secondUser);
-        friendRepository.deleteFriends(firstUser);
-        friendRepository.saveFriends(firstUser);
-
-        return firstUser;
+    public User createUser(User user) {
+        validateUser(user);
+        return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
-        final Integer userId = user.getId();
-
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
-
-        return create(user);
+        checkUser(user.getId());
+        validateUser(user);
+        return userStorage.updateUser(user);
     }
 
-    public User removeUser(Integer id, Integer friendId) {
-        User firstUser = userRepository.findById(id)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
+    public void deleteUser(int userId) {
+        checkUser(userId);
+        userStorage.deleteUser(userId);
+    }
 
-        User secondUser = userRepository.findById(friendId)
-                .orElseThrow(() -> new NonExistingUserException("This user does not exist"));
+    public User findUser(int userId) {
+        return userStorage.findUser(userId).orElseThrow(
+                () -> new UserNotFoundException("Пользователь не найден")
+        );
+    }
 
-        firstUser.removeFriend(secondUser);
-        friendRepository.deleteFriend(firstUser, secondUser);
+    public void addFriend(int id, int friendId) {
+        checkUser(id);
+        checkUser(friendId);
+        userStorage.addFriend(id, friendId);
+        addEvent(id, EventType.FRIEND, Operation.ADD, friendId);
+    }
 
-        return firstUser;
+    public void deleteFriend(int id, int friendId) {
+        checkUser(id);
+        checkUser(friendId);
+        userStorage.deleteFriend(id, friendId);
+        addEvent(id, EventType.FRIEND, Operation.REMOVE, friendId);
+    }
+
+    public Collection<User> findAllFriends(int id) {
+        checkUser(id);
+        return userStorage.findAllFriends(id);
+    }
+
+    public Collection<User> findCommonFriends(int id, int otherId) {
+        checkUser(id);
+        checkUser(otherId);
+        return userStorage.findCommonFriends(id, otherId);
+    }
+
+    private void validateUser(User user) {
+        if (user.getEmail().isEmpty() || !(user.getEmail().contains("@"))) {
+            log.error("Ошибка добавления пользователя.");
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+        } else if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
+            log.error("Ошибка добавления пользователя.");
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Ошибка добавления пользователя.");
+            throw new ValidationException("Дата рождения не может быть в будущем");
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
+    private void checkUser(int id) {
+        if (userStorage.findUser(id).isEmpty()) {
+            throw new UserNotFoundException("Пользователь не найден.");
+        }
     }
 }
