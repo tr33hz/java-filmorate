@@ -1,81 +1,106 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.Film;
-import ru.yandex.practicum.filmorate.dto.User;
-import ru.yandex.practicum.filmorate.exceptions.NonExistingFilmException;
-import ru.yandex.practicum.filmorate.repository.interfaces.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.interfaces.LikeRepository;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
+@Slf4j
 public class FilmService {
 
-    @Qualifier("filmDao")
-    private final FilmRepository filmRepository;
-    private final LikeRepository likeRepository;
+    private final FilmStorage filmStorage;
+    private final GenreService genreService;
     private final UserService userService;
+    private final DirectorService directorService;
 
-
-    public List<Film> getFilms() {
-        return filmRepository.getAll();
+    public List<Film> findAllFilms() {
+        List<Film> allFilms = filmStorage.findAllFilms();
+        genreService.setGenres(allFilms);
+        directorService.setDirectors(allFilms);
+        return allFilms;
     }
 
-    public Film getFilmById(Integer id) {
-        return filmRepository.findById(id)
-                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
-    }
-
-    public List<Film> getAllFilms() {
-        return filmRepository.getAll();
-    }
-
-    public List<Film> getFilmsByLikes(int count) {
-        return filmRepository.getAll().stream()
-                .sorted(Comparator.comparingInt(Film::getQuantityLikes).reversed())
-                .limit(count).collect(Collectors.toList());
-    }
-
-    public Film create(Film film) {
-        return filmRepository.saveFilm(film);
-    }
-
-    public Film addLike(Integer filmId, Integer userId) {
-        Film film = filmRepository.findById(filmId)
-                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
-
-        User user = userService.getUserById(userId);
-
-        film.addLike(user);
-        likeRepository.deleteLikes(film);
-        likeRepository.saveLikes(film);
-
-        return film;
+    public Film createFilm(Film film) {
+        validateFilm(film);
+        return filmStorage.createFilm(film);
     }
 
     public Film updateFilm(Film film) {
-        final int filmId = film.getId();
-        filmRepository.findById(filmId)
-                .orElseThrow(() -> new NonExistingFilmException("Error received film by id"));
-        return filmRepository.saveFilm(film);
+        checkFilm(film.getId());
+        validateFilm(film);
+        return filmStorage.updateFilm(film);
     }
 
-    public Film removeLike(Integer filmId, Integer userId) {
-        Film film = filmRepository.findById(filmId)
-                .orElseThrow(() -> new NonExistingFilmException("This film does not exist"));
+    public void deleteFilm(Integer id) {
+        checkFilm(id);
+        filmStorage.deleteFilm(id);
+    }
 
-        User user = userService.getUserById(userId);
-
-        film.removeLike(user);
-        likeRepository.deleteLike(film, user);
-
+    public Film findFilm(Integer id) {
+        Film film = filmStorage.findFilm(id).orElseThrow(
+                () -> new FilmNotFoundException("Фильм не найден")
+        );
+        genreService.setGenres(List.of(film));
+        directorService.setDirectors(List.of(film));
         return film;
+    }
+
+    public List<Film> getTopRatedFilms(int count, Integer genreId, String year) {
+        List<Film> topRatedFilms = filmStorage.getTopRatedFilms(count, genreId, year);
+        directorService.setDirectors(topRatedFilms);
+        genreService.setGenres(topRatedFilms);
+        return topRatedFilms;
+    }
+
+    private void validateFilm(Film film) {
+        if (film.getName().isEmpty()) {
+            throw new ValidationException("Название фильма не может быть пустым.");
+        } else if (film.getDescription().length() > 200) {
+            throw new ValidationException("Максимальная длина описания — 200 символов.");
+        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года.");
+        } else if (film.getDuration() < 1) {
+            throw new ValidationException("Продолжительность фильма должна быть положительной.");
+        }
+    }
+
+    public List<Film> getTopFilmsByGivenSearch(String query, String by) {
+        List<Film> filmsByGivenSearch = filmStorage.getTopFilmsByGivenSearch(query, by);
+        genreService.setGenres(filmsByGivenSearch);
+        directorService.setDirectors(filmsByGivenSearch);
+        return filmsByGivenSearch;
+    }
+
+    private void checkFilm(Integer id) {
+        if (filmStorage.findFilm(id).isEmpty()) {
+            throw new FilmNotFoundException("Фильм не найден.");
+        }
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userService.findUser(userId);
+        userService.findUser(friendId);
+
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getSortedFilms(Integer directorId, String sortBy) {
+        List<Film> sortedFilms = filmStorage.getSortedFilms(directorId, sortBy);
+        if (sortedFilms.isEmpty()) {
+            throw new DirectorNotFoundException("Режиссёр не найден.");
+        }
+        directorService.setDirectors(sortedFilms);
+        genreService.setGenres(sortedFilms);
+        return sortedFilms;
     }
 }
